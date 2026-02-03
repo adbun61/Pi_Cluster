@@ -2,10 +2,12 @@
 - name: Deploy apps from repository
   hosts: localhost
   gather_facts: false
+  vars:
+    kubeconfig: "~/.kube/config" 
 
   tasks:
 
-    - name: Emsure Namespace exisits
+    - name: Ensure Namespace exisits
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig }}"
         name: linkding
