@@ -17,14 +17,29 @@
 
     - name: Find all yaml files inside apps folder
       find:
-        paths: "{{ playbook_dir }}/k8s-manifests"
+        paths: "~/Pi_Cluster/k8s-manifests"
         patterns: "*.yaml"
         recurse: yes
       register: app_manifests
+   
+    - name: Add Grafana Helm repo
+      kubernetes.core.helm_repository:
+        name: grafana
+        repo_url: "https://grafana.github.io/helm-charts"
 
+    - name: Deploy Grafana via Helm
+      kubernetes.core.helm:
+        name: grafana
+        chart_ref: grafana/grafana
+        release_namespace: monitoring
+        # This points to your organized values file
+        values_files:
+          - "{{ playbook_dir }}/../helm-values/grafana-values.yml" 
+    
     - name: Apply manifests to cluster
       kubernetes.core.k8s:
         state: present
         src: "{{ item.path }}"
-      loop: "{{ app_manifests.files }}"
+                                                                                                                                                                      1,1           Top
+
 
