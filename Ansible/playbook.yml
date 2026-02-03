@@ -4,6 +4,7 @@
   gather_facts: false
   vars:
     kubeconfig: "~/.kube/config" 
+    playbook_dir: "~/Pi_Cluster"
 
   tasks:
 
@@ -16,7 +17,7 @@
 
     - name: Find all yaml files inside apps folder
       find:
-        paths: "{{ playbook_dir }}/../k8s-manifest"
+        paths: "{{ playbook_dir }}/k8s-manifests"
         patterns: "*.yaml"
         recurse: yes
       register: app_manifests
