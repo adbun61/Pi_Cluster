@@ -36,6 +36,6 @@
       # Kubectl node on the hardware in a dev container
       kubernetes.core.k8s_drain:
         name: "{{ inventory_hostname }}"
-        kubeconfig: "/path/to/your/config"
+        kubeconfig: "~/.kube/config"
         state: uncordon
       delegate_to: localhost

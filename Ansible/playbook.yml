@@ -26,6 +26,7 @@
       kubernetes.core.k8s:
         state: present
         src: "{{ item.path }}"
+      loop: "{{ app_manifests.files }}"
 
     - name: Add Grafana Helm repo
       kubernetes.core.helm_repository:
