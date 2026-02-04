@@ -1,0 +1,37 @@
+---
+- name: Maintain Pi Cluster Hardware
+  hosts: pi_nodes  # This would be your list of Pi IPs in an inventory
+  serial: 1        # CRITICAL: This updates one Pi at a time so the cluster stays up
+  become: true
+
+  tasks:
+    - name: Drain the node (Move pods away)
+      kubernetes.core.k8s_drain:
+        name: "{{ inventory_hostname }}"
+        kubeconfig: "~/.kube/config"
+        state: drain
+        delete_options:
+          terminate_grace_period: 60
+          ignore_daemonsets: true  # Essential for system pods
+          force: true
+
+    - name: Update and Upgrade OS
+      apt:
+        update_cache: yes
+        upgrade: dist
+        autoremove: yes
+
+    - name: Check if reboot is required
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_needed
+
+    - name: Reboot the Pi
+      reboot:
+      when: reboot_needed.stat.exists
+
+    - name: Uncordon the node (Bring it back to the cluster)
+      kubernetes.core.k8s_drain:
+        name: "{{ inventory_hostname }}"
+        kubeconfig: "/path/to/your/config"
+        state: uncordon
