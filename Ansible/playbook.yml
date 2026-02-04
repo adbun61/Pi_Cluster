@@ -21,22 +21,30 @@
         patterns: "*.yaml"
         recurse: yes
       register: app_manifests
-   
+
+    - name: Apply manifests to cluster
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ item.path }}"
+
     - name: Add Grafana Helm repo
       kubernetes.core.helm_repository:
         name: grafana
         repo_url: "https://grafana.github.io/helm-charts"
 
-    - name: Deploy Grafana via Helm
+    - name: Add Promethus Helm repo
+      kubernetes.core.helm_repository:
+        name: prometheus-community
+        repo_url: "https://prometheus-community.github.io/helm-charts"
+
+    - name: Deploy Promethus Stack wirh Grafana   
       kubernetes.core.helm:
-        name: grafana
-        chart_ref: grafana/grafana
+        name: kube-prom-stack
+        chart_ref: prometheus-community/kube-prometheus-stack
         release_namespace: monitoring
-        # This points to your organized values file
+        create_namespace: true
+        update_repo_cache: true
         values_files:
-          - "{{ playbook_dir }}/../helm-values/grafana-values.yml" 
-    
-    - name: Apply manifests to cluster
-      kubernetes.core.k8s:
-        state: present
-        src: "{{ item.path }}"
+          - "{{ playbook_dir }}/../helm-values/grafana-values.yml"
+        kubeconfig: "~/.kube/config"
+
