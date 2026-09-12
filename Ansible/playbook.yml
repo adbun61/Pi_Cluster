@@ -11,9 +11,13 @@
     - name: Ensure Namespace exisits
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig }}"
-        name: linkding
+        name: "{{ item }}"
         kind: Namespace
         state: present
+      loop:
+        - gitea
+        - linkding
+        - monitoring
 
     - name: Find all yaml files inside apps folder
       find:
@@ -38,6 +42,11 @@
         name: prometheus-community
         repo_url: "https://prometheus-community.github.io/helm-charts"
 
+    - name: Add Gitea Helm repo
+      kubernetes.core.helm_repository:
+        name: gitea
+        repo_url: "https://dl.gitea.com/charts/"
+
     - name: Deploy Promethus Stack wirh Grafana   
       kubernetes.core.helm:
         name: kube-prom-stack
@@ -49,3 +58,12 @@
           - "{{ playbook_dir }}/../helm-values/grafana-values.yml"
         kubeconfig: "~/.kube/config"
 
+    - name: Deploy Gitea release using Helm
+      kubernetes.core.helm:
+        name: gitea
+        chart_ref: gitea-charts/gitea
+        release_namespace: gitea
+        state: present
+        create_namespace: true
+        values_files:
+          - "{{ playbook_dir }}/../helm-values/gitea-values.yml"
