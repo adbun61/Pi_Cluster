@@ -1,0 +1,12 @@
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: gitea.home.lab # Change to your domain/hostname
+      paths:
+        - path: /
+          pathType: Prefix
+persistence:
+  enabled: true
+  storageClass: "local-path" # Default K3s storage class
+
